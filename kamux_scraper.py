@@ -1,10 +1,13 @@
 from requests import get
 from pandas import DataFrame
 
-fuel_type="EL"
+fuel_type="EL" # EL = electric, E = hybrid, D = diesel, BN = gasoline, 10 = hydrogen, 13 = LPG, 25 = flex-fuel
 
 def get_cars_data(page=1):
-    url = f"https://www.kamux.fi/api/search?fuelTypeCode={fuel_type}&page={page}"
+    skip = (page - 1) * 22
+    top = skip + 22
+    url = f"https://www.kamux.fi/api/search?skip={skip}&top={top}&fuelTypeCode={fuel_type}"
+
     response = get(url)
     data = response.json()
     return data
@@ -12,7 +15,7 @@ def get_cars_data(page=1):
 print("Getting data from Kamux...")
 
 cars_data = []
-for page in range(1, 29):
+for page in range(1, 33):
     cars_data += get_cars_data(page)['results']
 
 
@@ -75,4 +78,4 @@ print(f"Total cars with battery test report: {len(car_specs)}")
 car_specs_df = DataFrame.from_dict(car_specs, orient='index')
 car_specs_df.to_csv("kamux_cars_data.csv", index=False)
 
-print("Data saved to kamux_cars_data.csv")
+print(f"{len(car_specs_df)} Data saved to kamux_cars_data.csv")
